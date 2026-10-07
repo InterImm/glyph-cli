@@ -10,7 +10,7 @@ from __future__ import annotations
 from html import escape
 
 from .page import Band, Line, Page, check_symbol
-from .script import GlyphError, Half, Vocabulary, Word
+from .script import NUMBER, GlyphError, Half, Vocabulary, Word
 
 POSITIONS = 6
 WIDTH = POSITIONS * 4 - 1  # 23 cells
@@ -136,24 +136,19 @@ def _structure(rows: list[str]) -> int:
     raise GlyphError("the rows don't fall into lines and bands; is this a picture rather than text?")
 
 
-def _which(vocab: Vocabulary, pattern: tuple[str, ...], kind: Half, slot: int, statement_kind: Half) -> Half:
-    by_shape = {p.shape: p.name for p in vocab.parts.values()}
-    named = by_shape.get(pattern)
-    numeric = slot != 1 and (kind == "ONE" or (kind is None and statement_kind == "ONE"))
-    if numeric:
-        if named and (named == "OPEN" or vocab.lookup(Word("ONE", named))):
-            return named
-        bits = "".join(pattern).replace(EMPTY_CELL, "0").replace(MARK, "1")
-        return int(bits, 2)
-    return named
+def _which(vocab: Vocabulary, pattern: tuple[str, ...], kind: Half, above: Word | None) -> Half:
+    """Read a which: bits under COUNT (or under nothing, answering a COUNT word above), else a part."""
+    if kind == NUMBER or (kind is None and above is not None and NUMBER in (above.kind, above.which)):
+        return int("".join(pattern).replace(EMPTY_CELL, "0").replace(MARK, "1"), 2)
+    return {p.shape: p.name for p in vocab.parts.values()}.get(pattern)
 
 
 def decode(vocab: Vocabulary, text: str) -> Page:
     """Read a drawing (as made by :func:`render`) back into a page.
 
-    Ambiguity: in a node slot whose kind is ONE, a which that is both a part
-    and a number reads as the part only when ONE.PART is a vocabulary word (or
-    OPEN, "how many?"); otherwise it reads as the number.
+    A which is read as nine bits only after COUNT, or with no kind under a line
+    whose word there is a COUNT word (a reply like ``_.12``); everywhere else it
+    must be a part.
     """
     rows = [r.strip() for r in text.splitlines() if r.strip()]
     if not rows:
@@ -195,8 +190,8 @@ def decode(vocab: Vocabulary, text: str) -> Page:
                         raise GlyphError(f"rows {r0 + 1}-{r0 + 3}, position {pos + 1}: not a part")
                     halves.append(name)
                 else:
-                    statement_kind = line.bands[0].words[slot].kind if line.bands else None
-                    which = _which(vocab, pattern, halves[-1], slot, statement_kind)
+                    above = line.bands[0].words[slot] if line.bands else None
+                    which = _which(vocab, pattern, halves[-1], above)
                     if which is None:
                         raise GlyphError(f"rows {r0 + 1}-{r0 + 3}, position {pos + 1}: not a part or a number here")
                     halves.append(which)

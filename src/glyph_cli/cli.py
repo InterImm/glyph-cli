@@ -14,7 +14,7 @@ from .drawing import decode, draw_words, render, render_svg
 from .export import vocabulary_markdown
 from .graph import format_graph, read_graph, to_dot
 from .page import check_symbol, format_page, parse_page
-from .script import GlyphError, Vocabulary, Word
+from .script import NUMBER, GlyphError, Vocabulary
 
 ENV_VOCAB = "GLYPH_VOCAB"
 
@@ -22,7 +22,7 @@ DESCRIPTION = """\
 glyph: the dictionary and toolkit for the grid script of Ross 128 b.
 
 Words are written KIND.WHICH (BODY.OTHER = "your world"), or KIND alone.
-A number is ONE.<n> (0-511). "_" is an empty position or an empty word.
+A number is COUNT.<n> (0-511); COUNT alone is zero. "_" is an empty position or an empty word.
 Pages are text files, one band per line: "SYMBOL: node | relation | node".
 """
 
@@ -54,13 +54,6 @@ def write_output(text: str, path: str | None) -> None:
 
 def emit_json(data: object) -> None:
     print(json.dumps(data, indent=2, ensure_ascii=False))
-
-
-def warn_twin(v: Vocabulary, word: Word) -> None:
-    if word.is_number:
-        twin = v.number_twin(word.which)  # type: ignore[arg-type]
-        if twin:
-            print(f'  note: drawn exactly like {twin.word} ("{twin.gloss}"); a reader sees that word', file=sys.stderr)
 
 
 # ---------- commands ----------
@@ -105,9 +98,8 @@ def cmd_check(v: Vocabulary, a: argparse.Namespace) -> int:
     if e:
         print(f'yes: {word} = "{e.gloss}" ({e.domain})')
         return 0
-    if word.kind == "ONE" and word.is_number:
-        print(f"yes: {word} = the number {word.which} (numbers are built in)")
-        warn_twin(v, word)
+    if word.kind == NUMBER:
+        print(f"yes: {word} = the number {word.which or 0} (numbers are built in)")
         return 0
     print(f"no: {word} is not in the vocabulary. Literal reading: {v.gloss(word)}")
     same_kind = [x for x in v.entries if x.word.kind == word.kind]
@@ -133,7 +125,6 @@ def cmd_show(v: Vocabulary, a: argparse.Namespace) -> int:
     print("\n".join(draw_words(v, words, check_symbol(a.symbol))))
     for w in words:
         print(f"  {w}: {v.gloss(w)}")
-        warn_twin(v, w)
     return 0
 
 
@@ -215,7 +206,7 @@ def build_parser() -> argparse.ArgumentParser:
         p.set_defaults(func=func)
         return p
 
-    p = add("parts", cmd_parts, "list the 15 parts and the relation markers")
+    p = add("parts", cmd_parts, "list the parts and the relation markers")
     p.add_argument("--json", action="store_true", help="print JSON")
     p = add("list", cmd_list, "list the vocabulary")
     p.add_argument("--domain", help="only domains containing this text")

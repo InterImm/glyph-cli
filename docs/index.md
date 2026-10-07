@@ -13,16 +13,16 @@ It draws words and pages on the lattice, keeps the vocabulary honest, reads a pa
 No install needed if you have [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME ONE.137
+uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 ```
 
 ```text
 +++.+++   .+..+.+   .....+.
-+++.+..   +++.+.+   .+....+
-+++.+++   .+..+.+   ......+
++++.+..   +++.+.+   ......+
++++.+++   .+..+.+   +++...+
   BODY.OTHER: your world
   STAR.TIME: pulsar
-  ONE.137: 137
+  COUNT.137: 137
 ```
 
 Then follow [Getting started](getting-started.md).
@@ -31,7 +31,7 @@ Then follow [Getting started](getting-started.md).
 
 | Command | What for |
 |---|---|
-| `glyph parts` | The 15 parts and what they mean as a thing and as a relation |
+| `glyph parts` | The 16 parts and what they mean as a thing and as a relation |
 | `glyph list`, `find`, `check` | Look words up |
 | `glyph show` | Draw words |
 | `glyph render` | Draw a whole page, as text or as SVG pixels |

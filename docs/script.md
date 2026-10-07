@@ -41,6 +41,7 @@ This is the grammar `glyph` implements: version 7 of the grid script, where **a 
 | BEFORE | earlier | — |
 | AFTER | later | — |
 | OPEN | what goes here? | — |
+| COUNT | number | — |
 
 ## Relations
 
@@ -58,21 +59,21 @@ A relation is one part (the action) plus a which that marks time or polarity:
 
 ## Numbers
 
-`ONE` with a which read as nine bits, 256 down to 1, left to right and top to bottom. `ONE.137`:
+`COUNT` plus a which read as nine bits, 256 down to 1, left to right and top to bottom. `COUNT` alone is zero. `COUNT.137`:
 
 ```text
 .....+.
-.+....+
 ......+
++++...+
 ```
 
-!!! note "Numbers that look like words"
-    Some numbers spell a part's shape: 495 is drawn exactly like `SELF`, so `ONE.495` and `ONE.SELF` (*one of us*) look the same on the page. When a drawing is read back, `glyph decode` reads such a which as the vocabulary word, and `glyph check ONE.495` warns about it. The clashes today are 16 (`ONE.ONE`), 170 (`ONE.OPEN`), 273 (`ONE.NOT`), 487 (`ONE.OTHER`) and 495 (`ONE.SELF`). `ONE.0` draws nothing in the which, so it reads back as `ONE` alone.
+COUNT is the only kind whose which is read as bits, and it never takes a part as its which, so a number can never be drawn like a word. (Under the old rule, numbers were `ONE` plus bits, and 495 was drawn exactly like `ONE.SELF`, *one of us*.)
 
 ## "That" and questions
 
 - `ONE` alone in a node slot means **that**: the statement on the line above.
 - `OPEN` in any position asks **what goes here?** The asker leaves an empty band for the answer, and whatever is drawn under `OPEN` replaces it. `OPEN` as a relation's which asks yes or no.
+- **How many?** is `OPEN.COUNT` (*what number?*), answered with a `COUNT` word.
 
 ## How the machine reads a page
 

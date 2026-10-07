@@ -35,11 +35,11 @@ def cli_markdown() -> str:
 
 
 def parts_text(vocab: Vocabulary) -> str:
-    """The 15 parts drawn in rows of five, with their names above."""
+    """The parts drawn in rows of four, with their names above."""
     names = list(vocab.parts)
     blocks = []
-    for i in range(0, len(names), 5):
-        row = names[i : i + 5]
+    for i in range(0, len(names), 4):
+        row = names[i : i + 4]
         lines = ["".join(f"{n:<10}" for n in row).rstrip()]
         for r in range(3):
             lines.append("".join(f"{vocab.parts[n].shape[r]:<10}" for n in row).rstrip())

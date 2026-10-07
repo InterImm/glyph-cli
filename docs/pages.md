@@ -8,7 +8,7 @@ A page is a plain text file that `glyph render`, `glyph graph` and `glyph decode
 - The first band of a block is the **statement**, one edge of the graph. Bands under it are **other voices** replying, part by part.
 - A **blank line** starts the next statement.
 - `#` starts a comment.
-- A word is `KIND.WHICH`, `KIND`, `_.WHICH`, or `_` for nothing. Numbers are `ONE.0` to `ONE.511` (or `_.12` in a reply).
+- A word is `KIND.WHICH`, `KIND`, `_.WHICH`, or `_` for nothing. Numbers are `COUNT.0` to `COUNT.511`; `COUNT` alone is zero (in a reply under a number, `_.12` changes just the bits).
 - A symbol is any single character except a space, `.`, `#`, `|`, `:` and `_`. By convention `+` is Ross 128 b and `×` is Earth.
 
 ```text

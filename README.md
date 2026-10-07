@@ -5,16 +5,16 @@ The dictionary and toolkit for the **grid script**: how humans write down what R
 **Docs:** https://interimm.github.io/glyph-cli/
 
 ```sh
-uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME ONE.137
+uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 ```
 
 ```text
 +++.+++   .+..+.+   .....+.
-+++.+..   +++.+.+   .+....+
-+++.+++   .+..+.+   ......+
++++.+..   +++.+.+   ......+
++++.+++   .+..+.+   +++...+
   BODY.OTHER: your world
   STAR.TIME: pulsar
-  ONE.137: 137
+  COUNT.137: 137
 ```
 
 ## Install
@@ -28,7 +28,7 @@ Python 3.10 or newer, no other dependencies.
 ## Use
 
 ```sh
-glyph parts                         # the 15 parts
+glyph parts                         # the 16 parts
 glyph find wind                     # search meanings
 glyph check BODY.STAR               # is it a word? exit 1 if not
 glyph show BODY.OTHER --symbol ×    # draw words

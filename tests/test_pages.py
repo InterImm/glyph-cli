@@ -20,14 +20,19 @@ GRAMMAR = {
 +.+......+..+...+++.+..
 +++.....+.+.....+++.+++
 """,
-    "+: STAR.TIME | ONE | ONE.OPEN\n×: _ | _ | _.12": """
-.+..+.+..............+.
-+++.+.+..+.......+..+.+
-.+..+.+..............+.
+    "+: STAR.TIME | ONE | COUNT.12": """
+.+..+.+................
++++.+.+..+............+
+.+..+.+.........+++.+..
+""",
+    "+: STAR.TIME | ONE | OPEN.COUNT\n×: _ | _ | COUNT.12": """
+.+..+.+..........+.....
++++.+.+..+......+.+....
+.+..+.+..........+..+++
 .......................
 .......................
 ......................×
-....................×..
+................×××.×..
 """,
     "+: BODY.OTHER | ONE | BODY.AIR\n×: _ | _ | _.WATER\n*: _ | _ | _.AIR": """
 +++.+++.........+++.+.+
@@ -67,22 +72,20 @@ def test_decode_round_trips_examples(vocab, path):
     assert decode(vocab, "\n".join(render(vocab, p))) == p
 
 
-@pytest.mark.parametrize("n", [0, 1, 12, 137, 186, 511])
+@pytest.mark.parametrize("n", [0, 1, 12, 16, 137, 170, 273, 487, 495, 511])
 def test_decode_numbers(vocab, n):
-    p = page(vocab, f"+: STAR.TIME | ONE | ONE.{n}")
+    # Numbers whose bits spell a part's shape (495 is SELF) read back as numbers: they sit under COUNT.
+    p = page(vocab, f"+: STAR.TIME | ONE | COUNT.{n}")
     back = decode(vocab, "\n".join(render(vocab, p)))
-    # ONE.0 draws nothing in the which, so it reads back as ONE alone ("that").
-    assert str(back.lines[0].statement.words[2]) == ("ONE" if n == 0 else f"ONE.{n}")
+    assert str(back.lines[0].statement.words[2]) == ("COUNT" if n == 0 else f"COUNT.{n}")
 
 
-@pytest.mark.parametrize("n, twin", [(495, "ONE.SELF"), (487, "ONE.OTHER"), (273, "ONE.NOT"), (16, "ONE.ONE")])
-def test_numbers_drawn_like_words_read_as_the_word(vocab, n, twin):
-    assert str(vocab.number_twin(n).word) == twin
-    p = page(vocab, f"+: STAR.TIME | ONE | ONE.{n}")
-    assert str(decode(vocab, "\n".join(render(vocab, p))).lines[0].statement.words[2]) == twin
+def test_decode_kindless_number_reply(vocab):
+    p = page(vocab, "+: STAR.TIME | ONE | COUNT.12\n×: _ | _ | _.495")
+    assert decode(vocab, "\n".join(render(vocab, p))) == p
 
 
-def test_decode_prefers_vocabulary_words(vocab):
+def test_decode_words(vocab):
     p = page(vocab, "+: ONE.SELF | ONE | ONE.OTHER")
     assert decode(vocab, "\n".join(render(vocab, p))) == p
 

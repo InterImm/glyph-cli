@@ -30,7 +30,7 @@ glyph --version
 
 ## Look at the parts
 
-Everything is built from 15 parts, each a 3×3 shape.
+Everything is built from 16 parts, each a 3×3 shape.
 
 ```sh
 glyph parts
@@ -49,7 +49,7 @@ glyph check BODY.STAR     # no, and its literal reading
 glyph show BODY.OTHER BODY.SELF --symbol ×
 ```
 
-Numbers are built in: `ONE.137` is 137, drawn as nine bits.
+Numbers are built in: `COUNT.137` is 137, its which drawn as nine bits. `COUNT` alone is zero.
 
 ## Write a page
 
