@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e . pytest
+      - run: pytest -q
+      - name: Smoke test the command
+        run: |
+          glyph validate
+          glyph render examples/conversation.txt | glyph decode - | diff - <(grep -v '^#' examples/conversation.txt | sed '/./,$!d')
+
+  lint-and-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install -e . ruff zensical
+      - run: ruff check .
+      - run: ruff format --check .
+      - name: Generated docs are current
+        run: python scripts/gen_docs.py --check
+      - name: Docs build
+        run: zensical build --clean

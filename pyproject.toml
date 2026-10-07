@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "glyph-cli"
+dynamic = ["version"]
+description = "The dictionary and toolkit for the grid script of Ross 128 b (InterImm, The Contact Era)."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "InterImm" }]
+requires-python = ">=3.10"
+dependencies = []
+classifiers = [
+  "Environment :: Console",
+  "Programming Language :: Python :: 3",
+  "Topic :: Text Processing :: Linguistic",
+]
+
+[project.urls]
+Homepage = "https://github.com/InterImm/glyph-cli"
+Documentation = "https://interimm.github.io/glyph-cli/"
+
+[project.scripts]
+glyph = "glyph_cli.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+docs = ["zensical"]
+
+[tool.hatch.version]
+path = "src/glyph_cli/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/glyph_cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]

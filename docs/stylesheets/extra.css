@@ -1,0 +1,27 @@
+/* The phase 2 ("137") design: signal blue, white-cyan for them, Sol yellow for us. */
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap");
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0d1457;
+  --md-default-bg-color--light: #141d6e;
+  --md-code-bg-color: #070b38;
+  --md-primary-fg-color: #070b38;
+  --md-accent-fg-color: #ffd84a;
+  --md-typeset-a-color: #9ff8ff;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0d1457;
+  --md-accent-fg-color: #1422c2;
+  --md-typeset-a-color: #1422c2;
+}
+
+.md-typeset h1 {
+  font-family: "Pixelify Sans", var(--md-text-font-family), sans-serif;
+  font-weight: 700;
+}
+
+.md-typeset img[src$=".svg"] {
+  image-rendering: pixelated;
+  max-width: 100%;
+}
