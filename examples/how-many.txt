@@ -1,0 +1,3 @@
+# "How many pulsars?" Twelve.
++: STAR.TIME | ONE | ONE.OPEN
+×: _ | _ | _.12
