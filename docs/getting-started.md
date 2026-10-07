@@ -7,20 +7,22 @@
 === "uv"
 
     ```sh
-    uv tool install git+https://github.com/InterImm/glyph-cli
+    uv tool install glyph-cli
     ```
 
 === "pipx"
 
     ```sh
-    pipx install git+https://github.com/InterImm/glyph-cli
+    pipx install glyph-cli
     ```
 
 === "pip"
 
     ```sh
-    pip install git+https://github.com/InterImm/glyph-cli
+    pip install glyph-cli
     ```
+
+The latest code on `main` installs with `uv tool install git+https://github.com/InterImm/glyph-cli`.
 
 Check it works:
 

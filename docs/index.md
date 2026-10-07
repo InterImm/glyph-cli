@@ -13,7 +13,7 @@ It draws words and pages on the lattice, keeps the vocabulary honest, reads a pa
 No install needed if you have [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
+uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 ```
 
 ```text

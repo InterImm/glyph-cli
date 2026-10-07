@@ -5,7 +5,7 @@ The dictionary and toolkit for the **grid script**: how humans write down what R
 **Docs:** https://interimm.github.io/glyph-cli/
 
 ```sh
-uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
+uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 ```
 
 ```text
@@ -20,7 +20,7 @@ uvx --from git+https://github.com/InterImm/glyph-cli glyph show BODY.OTHER STAR.
 ## Install
 
 ```sh
-uv tool install git+https://github.com/InterImm/glyph-cli    # or: pipx install git+https://github.com/InterImm/glyph-cli
+uv tool install glyph-cli    # or: pipx install glyph-cli, or: pip install glyph-cli
 ```
 
 Python 3.10 or newer, no other dependencies.
@@ -40,7 +40,7 @@ glyph init my-vocab.json && export GLYPH_VOCAB=$PWD/my-vocab.json
 glyph add BODY.STAR "a star-world" --domain Worlds
 ```
 
-A page file has one band per line, `SYMBOL: node | relation | node`; a blank line starts the next statement. See [`examples/`](examples) and the [docs](https://interimm.github.io/glyph-cli/pages/).
+A page file has one band per line, `SYMBOL: node | relation | node`; a blank line starts the next statement. See [`examples/`](https://github.com/InterImm/glyph-cli/tree/main/examples) and the [docs](https://interimm.github.io/glyph-cli/pages/).
 
 ## Develop
 
@@ -52,9 +52,16 @@ uv run python scripts/gen_docs.py    # regenerate docs/vocabulary.md, docs/cli.m
 uv run zensical serve                # docs at http://localhost:8000
 ```
 
-The vocabulary ships in [`src/glyph_cli/data/vocab.json`](src/glyph_cli/data/vocab.json). Change it with the tool (`glyph --vocab src/glyph_cli/data/vocab.json add ...`), then run `scripts/gen_docs.py`; the tests fail if the generated docs are stale.
+The vocabulary ships in [`src/glyph_cli/data/vocab.json`](https://github.com/InterImm/glyph-cli/blob/main/src/glyph_cli/data/vocab.json). Change it with the tool (`glyph --vocab src/glyph_cli/data/vocab.json add ...`), then run `scripts/gen_docs.py`; the tests fail if the generated docs are stale.
 
 Pushes to `main` publish the docs to GitHub Pages.
+
+## Release
+
+1. Bump `__version__` in `src/glyph_cli/__init__.py` and merge it to `main`.
+2. Publish a GitHub release tagged `vX.Y.Z` (the same version).
+
+The release workflow checks the tag matches the version, builds the package, tests the built wheel and uploads it to [PyPI](https://pypi.org/project/glyph-cli/) with Trusted Publishing, so no token is stored.
 
 ## License
 
