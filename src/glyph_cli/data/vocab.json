@@ -135,6 +135,15 @@
    ],
    "thing": "what goes here?",
    "relation": null
+  },
+  "COUNT": {
+   "shape": [
+    "...",
+    "...",
+    "###"
+   ],
+   "thing": "number",
+   "relation": null
   }
  },
  "markers": {
@@ -519,11 +528,11 @@
    "note": ""
   },
   {
-   "kind": "ONE",
-   "which": "OPEN",
+   "kind": "OPEN",
+   "which": "COUNT",
    "gloss": "how many?",
    "domain": "Logic and number",
-   "note": ""
+   "note": "\"what number?\"; answer with COUNT.n"
   },
   {
    "kind": "OPEN",

@@ -9,12 +9,12 @@ usage: glyph [-h] [--version] [--vocab PATH] COMMAND ...
 glyph: the dictionary and toolkit for the grid script of Ross 128 b.
 
 Words are written KIND.WHICH (BODY.OTHER = "your world"), or KIND alone.
-A number is ONE.<n> (0-511). "_" is an empty position or an empty word.
+A number is COUNT.<n> (0-511); COUNT alone is zero. "_" is an empty position or an empty word.
 Pages are text files, one band per line: "SYMBOL: node | relation | node".
 
 positional arguments:
   COMMAND
-    parts       list the 15 parts and the relation markers
+    parts       list the parts and the relation markers
     list        list the vocabulary
     check       is a word in the vocabulary? (exit 1 if not)
     find        search meanings and notes
@@ -43,7 +43,7 @@ Run `glyph init` to make an editable copy. Docs: https://interimm.github.io/glyp
 $ glyph parts --help
 usage: glyph parts [-h] [--json]
 
-list the 15 parts and the relation markers
+list the parts and the relation markers
 
 options:
   -h, --help  show this help message and exit

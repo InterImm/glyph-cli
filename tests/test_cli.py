@@ -24,7 +24,7 @@ def test_parts(capsys):
     code, out, _ = run(capsys, "parts")
     assert code == 0 and "SELF" in out and "asked: does it?" in out
     code, out, _ = run(capsys, "parts", "--json")
-    assert len(json.loads(out)["parts"]) == 15
+    assert len(json.loads(out)["parts"]) == 16
 
 
 def test_list(capsys):
@@ -39,7 +39,7 @@ def test_list(capsys):
 
 def test_check(capsys):
     assert run(capsys, "check", "BODY.OTHER")[0] == 0
-    assert run(capsys, "check", "ONE.137")[0] == 0
+    assert run(capsys, "check", "COUNT.137")[0] == 0
     code, out, _ = run(capsys, "check", "LIGHT.VOICE")
     assert code == 1 and "not in the vocabulary" in out
     code, _, err = run(capsys, "check", "WIND")

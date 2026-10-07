@@ -2,8 +2,9 @@
 
 A *part* is a 3x3 shape with a meaning. A *word* is two lattice positions,
 a **kind** on the left and a **which** on the right, written ``KIND.WHICH``.
-Either half may be empty (``_``). When the kind is ``ONE`` the which may be a
-number from 0 to 511, drawn as nine bits.
+Either half may be empty (``_``). Numbers are ``COUNT.<n>`` (0 to 511): COUNT is the
+only kind whose which is read as nine bits, and it never takes a part as its which,
+so a number can never be drawn like a word. ``COUNT`` alone is zero.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ Half = str | int | None
 
 MAX_NUMBER = 511
 EMPTY = "_"
+NUMBER = "COUNT"  # the kind whose which is a number
 
 
 class GlyphError(Exception):
@@ -143,7 +145,7 @@ class Vocabulary:
     # ---- words ----
 
     def parse(self, text: str) -> Word:
-        """``'BODY.OTHER'`` -> ``Word('BODY', 'OTHER')``; ``'ONE.137'`` -> ``Word('ONE', 137)``."""
+        """``'BODY.OTHER'`` -> ``Word('BODY', 'OTHER')``; ``'COUNT.137'`` -> ``Word('COUNT', 137)``."""
         s = text.strip()
         if s in ("", EMPTY):
             return Word()
@@ -156,10 +158,14 @@ class Vocabulary:
             which = int(w)
             if which > MAX_NUMBER:
                 raise GlyphError(f"number out of range 0-{MAX_NUMBER}: {which}")
-            if kind not in ("ONE", None):
-                raise GlyphError(f"a number needs ONE as its kind, e.g. ONE.{which} (got {s})")
+            if kind not in (NUMBER, None):
+                raise GlyphError(f"a number needs {NUMBER} as its kind, e.g. {NUMBER}.{which} (got {s})")
+            if kind == NUMBER and which == 0:
+                which = None  # COUNT alone is zero: COUNT.0 draws exactly like it
         else:
             which = w.upper()
+            if kind == NUMBER:
+                raise GlyphError(f"{NUMBER} only takes a number as its which, e.g. {NUMBER}.12 (got {s})")
         for half in (kind, which):
             if isinstance(half, str) and half not in self.parts:
                 raise GlyphError(f"unknown part: {half} (see `glyph parts`)")
@@ -192,8 +198,8 @@ class Vocabulary:
                 return base
             marker = self.markers.get(str(word.which), str(word.which))
             return f"{base} [{marker}]"
-        if word.kind == "ONE" and word.is_number:
-            return str(word.which)
+        if word.kind == NUMBER and (word.is_number or word.which is None):
+            return str(word.which or 0)
         entry = self.lookup(word)
         if entry:
             return entry.gloss
@@ -204,8 +210,8 @@ class Vocabulary:
     # ---- editing ----
 
     def add(self, word: Word, gloss: str, domain: str = "Unsorted", note: str = "", force: bool = False) -> Entry:
-        if word.kind is None or word.is_number:
-            raise GlyphError("a vocabulary word needs a kind; numbers are built in")
+        if word.kind is None or word.is_number or word.kind == NUMBER:
+            raise GlyphError(f"a vocabulary word needs a kind; numbers ({NUMBER}.n) are built in")
         existing = self.lookup(word)
         if existing:
             raise GlyphError(f'already in the vocabulary: {word} = "{existing.gloss}"')
@@ -247,6 +253,8 @@ class Vocabulary:
             for half in e.word.halves:
                 if isinstance(half, str) and half not in self.parts:
                     errors.append(f"{e.word}: unknown part {half}")
+            if e.word.kind == NUMBER:
+                errors.append(f"{e.word}: {NUMBER} words are numbers and are built in")
             if e.word in seen:
                 errors.append(f'{e.word} defined twice ("{seen[e.word]}" and "{e.gloss}")')
             seen[e.word] = e.gloss
@@ -255,17 +263,6 @@ class Vocabulary:
                 errors.append(f'meaning "{e.gloss}" used by {glosses[g]} and {e.word}')
             glosses[g] = e.word
         return errors
-
-    def number_twin(self, n: int) -> Entry | None:
-        """The ONE.PART word that is drawn exactly like the number ONE.n, if there is one.
-
-        A number's nine bits can spell a part's shape (495 is SELF), so ONE.495 and
-        ONE.SELF ("one of us") look the same on the page.
-        """
-        for p in self.parts.values():
-            if int("".join(p.shape).replace("#", "1").replace(".", "0"), 2) == n:
-                return self.lookup(Word("ONE", p.name))
-        return None
 
     def domains(self) -> list[str]:
         out: list[str] = []

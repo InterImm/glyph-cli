@@ -2,4 +2,4 @@
 # The same word on two lines is one node with two edges.
 +: SELF | LIGHT.ONE | STAR.TIME
 
-+: STAR.TIME | ONE | ONE.12
++: STAR.TIME | ONE | COUNT.12
