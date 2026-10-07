@@ -2,7 +2,7 @@
 
 ## Install
 
-`glyph` needs Python 3.10 or newer and has no other dependencies.
+`glyph` is published on [PyPI](https://pypi.org/project/glyph-cli/) as **`glyph-cli`** (the command it installs is `glyph`). It needs Python 3.10 or newer and has no other dependencies.
 
 === "uv"
 
@@ -22,13 +22,35 @@
     pip install glyph-cli
     ```
 
-The latest code on `main` installs with `uv tool install git+https://github.com/InterImm/glyph-cli`.
-
 Check it works:
 
 ```sh
 glyph --version
 ```
+
+To get a newer release later:
+
+=== "uv"
+
+    ```sh
+    uv tool upgrade glyph-cli
+    ```
+
+=== "pipx"
+
+    ```sh
+    pipx upgrade glyph-cli
+    ```
+
+=== "pip"
+
+    ```sh
+    pip install -U glyph-cli
+    ```
+
+!!! tip "Unreleased changes"
+    PyPI has the latest release. To try what is on `main` before it is released, install from GitHub instead:
+    `uv tool install git+https://github.com/InterImm/glyph-cli`.
 
 ## Look at the parts
 

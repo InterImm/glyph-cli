@@ -54,6 +54,10 @@ toggle.name = "Switch to dark mode"
 icon = "fontawesome/brands/github"
 link = "https://github.com/InterImm/glyph-cli"
 
+[[project.extra.social]]
+icon = "fontawesome/brands/python"
+link = "https://pypi.org/project/glyph-cli/"
+
 [project.markdown_extensions]
 admonition = {}
 attr_list = {}
