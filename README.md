@@ -2,7 +2,12 @@
 
 The dictionary and toolkit for the **grid script**: how humans write down what Ross 128 b sends, in InterImm's *The Contact Era*.
 
-**Docs:** https://interimm.github.io/glyph-cli/
+[![PyPI](https://img.shields.io/pypi/v/glyph-cli)](https://pypi.org/project/glyph-cli/)
+[![Python](https://img.shields.io/pypi/pyversions/glyph-cli)](https://pypi.org/project/glyph-cli/)
+[![CI](https://github.com/InterImm/glyph-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/InterImm/glyph-cli/actions/workflows/ci.yml)
+[![Docs](https://github.com/InterImm/glyph-cli/actions/workflows/docs.yml/badge.svg)](https://interimm.github.io/glyph-cli/)
+
+**Docs:** https://interimm.github.io/glyph-cli/ · **PyPI:** https://pypi.org/project/glyph-cli/
 
 ```sh
 uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
@@ -19,11 +24,14 @@ uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 
 ## Install
 
+`glyph` is on [PyPI](https://pypi.org/project/glyph-cli/) as `glyph-cli`:
+
 ```sh
 uv tool install glyph-cli    # or: pipx install glyph-cli, or: pip install glyph-cli
+glyph --version
 ```
 
-Python 3.10 or newer, no other dependencies.
+Upgrade with `uv tool upgrade glyph-cli` (or `pipx upgrade glyph-cli`, `pip install -U glyph-cli`). Python 3.10 or newer, no other dependencies.
 
 ## Use
 

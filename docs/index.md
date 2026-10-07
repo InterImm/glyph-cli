@@ -25,7 +25,7 @@ uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
   COUNT.137: 137
 ```
 
-Then follow [Getting started](getting-started.md).
+`uvx` fetches [`glyph-cli` from PyPI](https://pypi.org/project/glyph-cli/) and runs it. To keep the `glyph` command, install it with `uv tool install glyph-cli` (or `pipx install glyph-cli`, or `pip install glyph-cli`), then follow [Getting started](getting-started.md).
 
 ## What it does
 
