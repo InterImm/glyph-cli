@@ -325,13 +325,6 @@ class Vocabulary:
             shapes[p.shape] = p.name
             if not any("#" in r for r in p.shape):
                 errors.append(f"part {p.name}: shape is empty")
-        for p in self.parts.values():
-            # Spacing is structure: a part moved one cell sideways must not be another part,
-            # or a 1-cell gap could read as a 2-cell gap.
-            for moved in ((r[1:] + "." for r in p.shape), ("." + r[:2] for r in p.shape)):
-                other = shapes.get(tuple(moved))
-                if other and other != p.name:
-                    errors.append(f"part {p.name} moved one cell sideways is {other}: gaps would be ambiguous")
         seen: dict[Word, str] = {}
         glosses: dict[str, Word] = {}
         for e in self.entries:

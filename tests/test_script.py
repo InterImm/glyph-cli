@@ -110,12 +110,6 @@ def test_validate_catches_duplicate_shapes(vocab):
     assert any("same shape" in e for e in Vocabulary.from_json(data).validate())
 
 
-def test_validate_catches_parts_one_cell_apart(vocab):
-    data = vocab.to_json()
-    data["parts"]["BEFORE"]["shape"] = ["...", "#..", "..."]  # ONE moved one cell left
-    assert any("sideways is BEFORE" in e for e in Vocabulary.from_json(data).validate())
-
-
 def test_positions(vocab):
     assert vocab.parse("SELF").positions == ["SELF"]
     assert vocab.parse("BODY.OTHER").positions == ["BODY", "OTHER"]

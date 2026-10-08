@@ -17,9 +17,9 @@ def page(vocab, text):
 # 2 between words, 4 between triplets; a one-part word is 3 cells wide.
 GRAMMAR = {
     "+: SELF | LIGHT.BEFORE | BODY.OTHER": """
-+++..+.+.+....+++.+++
-+.+...+..+++..+++.+..
-+++..+.+.+....+++.+++
++++..+.+......+++.+++
++.+...+..+....+++.+..
++++..+.+......+++.+++
 """,
     "+: STAR.TIME | ONE | COUNT.12": """
 .+..+.+..............
@@ -49,9 +49,9 @@ GRAMMAR = {
 ..................*.*
 """,
     "+: SELF | LIGHT | BODY.OTHER\n\n+: SELF | VOICE.AFTER | ONE": """
-+++..+.+..+++.+++....+++..+.....+.....
-+.+...+...+++.+......+.+..++..+++...+.
-+++..+.+..+++.+++....+++..+++...+.....
++++..+.+..+++.+++....+++..+...........
++.+...+...+++.+......+.+..++....+...+.
++++..+.+..+++.+++....+++..+++.........
 """,
 }
 
@@ -122,10 +122,14 @@ def test_a_zero_digit_at_the_end_of_a_line_is_invisible(vocab):
 
 
 def test_decode_ambiguous_gaps(vocab):
-    # ONE and the gaps around it: every one of these reads back as written.
-    for src in ("+: BODY.AFTER | ONE | OTHER", "+: BODY | ONE.OTHER | OTHER", "+: SELF | VOICE.ONE | ONE"):
+    # ONE, BEFORE and AFTER are one dot a cell apart, so a few drawings fit two readings.
+    # The reader keeps the one made of known words.
+    for src in ("+: BODY | ONE.OTHER | OTHER", "+: SELF | VOICE.ONE | ONE", "+: SELF | LIGHT.BEFORE | BODY.OTHER"):
         p = page(vocab, src)
         assert decode(vocab, "\n".join(render(vocab, p))) == p
+    a, b = page(vocab, "+: AIR.NOT | BODY.AFTER | OTHER"), page(vocab, "+: AIR.NOT | BODY | ONE.OTHER")
+    assert render(vocab, a) == render(vocab, b)  # truly the same drawing
+    assert decode(vocab, "\n".join(render(vocab, a))) == b
 
 
 def test_decode_kindless_number_reply(vocab):

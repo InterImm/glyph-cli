@@ -21,9 +21,9 @@ This is the grammar `glyph` implements: version 8 of the grid script, where **a 
 Two triplets on one line, "We saw your world. We will say that.":
 
 ```text
-+++..+.+.+....+++.+++....+++..+.....+.....
-+.+...+..+++..+++.+......+.+..++..+++...+.
-+++..+.+.+....+++.+++....+++..+++...+.....
++++..+.+......+++.+++....+++..+...........
++.+...+..+....+++.+......+.+..++....+...+.
++++..+.+......+++.+++....+++..+++.........
 ```
 
 `SELF`, 2 cells, `LIGHT.BEFORE` (1 cell inside), 2 cells, `BODY.OTHER`; then 4 cells and the next triplet.
@@ -98,14 +98,14 @@ A 0 digit is a blank position. Inside a line that is fine, because the next gap 
 - `OPEN` in any position asks **what goes here?** The asker leaves an empty band for the answer, and whatever is drawn under `OPEN` replaces it. `OPEN` as a relation's which asks yes or no.
 - **How many?** is `OPEN.COUNT` (*what number?*), answered with a `COUNT` word.
 
-## Why no part is another part moved sideways
+## When the gaps fit two readings
 
-Because gaps carry the structure, a part with empty edge columns could make a 1-cell gap look like a 2-cell gap. `ONE` is a single dot in the middle, so `BEFORE` and `AFTER` are drawn as a path with a tick at its start and its end, not as dots at the edges: otherwise `BODY.AFTER | OTHER` (*will have, you*) and `BODY | ONE.OTHER` (*have, one of you*) would be the same drawing. `glyph validate` checks that no part moved one cell sideways is another part.
+`ONE`, `BEFORE` and `AFTER` are each one dot, a cell apart, so a dot next to a gap can sometimes be read either way. `BODY.AFTER | OTHER` (*will have, you*) and `BODY | ONE.OTHER` (*have, one of you*) are the same drawing. This is kept on purpose (L, 2026-10-08): like any real decipherment, the machine reads such a line the way that makes most sense against its lexicon, a relation with a tense marker and words it already knows, and it can be wrong.
 
 ## How the machine reads a page
 
 1. Split the drawing into lines at the three-row gaps, and count the bands: that is the number of voices.
-2. Split each line into triplets, words and parts from the 1, 2 and 4 cell gaps. Anything that won't split into whole parts is a picture, not text. Number digits can have empty edges of their own, so when more than one split fits, the machine keeps the one that reads best against the vocabulary.
+2. Split each line into triplets, words and parts from the 1, 2 and 4 cell gaps. Anything that won't split into whole parts is a picture, not text. ONE, BEFORE and AFTER and number digits have empty edges of their own, so when more than one split fits, the machine keeps the one that reads best against the vocabulary.
 3. Read the first band of each triplet as an edge. Same word, same node. A lone `ONE` points at the triplet before.
 4. Apply rule 5 to every part in a lower band, and attach the result to that node or edge with the voice that drew it.
 

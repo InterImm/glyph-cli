@@ -198,12 +198,11 @@ class _LineReader:
 
     The gaps say where everything is: 1 empty column inside a word, 2 between words,
     4 between triplets. Some parts (ONE, BEFORE, AFTER) and number digits have empty
-    columns of their own, so a gap can look a cell wider than it is. The parts are
-    drawn so that no part moved one cell sideways is another part, but number digits
-    can be anything. So the reader finds every layout in which each position is a
-    part (or a digit, in a number) and keeps the one whose statements read best
-    against the vocabulary, like the translating machine of the story leaning on
-    its lexicon.
+    columns of their own, so a gap can look a cell wider than it is: ONE moved one
+    cell left is BEFORE, one cell right is AFTER. The reader finds every layout in
+    which each position is a part (or a digit, in a number) and keeps the one whose
+    statements read best against the vocabulary, like the translating machine of the
+    story leaning on its lexicon. It can be wrong; that is part of the story.
     """
 
     LIMIT = 64  # layouts kept per starting point; real lines have one or two

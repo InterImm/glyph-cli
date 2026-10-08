@@ -63,9 +63,9 @@ or `COUNT.4.171` for 2219) are built in, so they are not listed. Status: **preli
 | Word | Parts | Meaning | Note |
 |---|---|---|---|
 | `+.+`<br>`+.+`<br>`+.+` | TIME | time |  |
-| `+.+.+..`<br>`+.+.+++`<br>`+.+.+..` | TIME.BEFORE | the past, before |  |
+| `+.+....`<br>`+.+.+..`<br>`+.+....` | TIME.BEFORE | the past, before |  |
 | `+.+....`<br>`+.+..+.`<br>`+.+....` | TIME.ONE | now |  |
-| `+.+...+`<br>`+.+.+++`<br>`+.+...+` | TIME.AFTER | the future, after |  |
+| `+.+....`<br>`+.+...+`<br>`+.+....` | TIME.AFTER | the future, after |  |
 | `+.+....`<br>`+.+.+++`<br>`+.+....` | TIME.PATH | always | time going on |
 | `+.+.+..`<br>`+.+..+.`<br>`+.+...+` | TIME.NOT | never |  |
 | `+.+.+++`<br>`+.+.+++`<br>`+.+.+++` | TIME.BODY | year | one orbit |
