@@ -1,6 +1,6 @@
 # glyph
 
-The dictionary and toolkit for the **grid script**: how humans write down what Ross 128 b sends, in InterImm's *The Contact Era*.
+The dictionary and toolkit for the **grid script**: how humans write down what Ross 128 b sends, in InterImm's *The Contact Era*. It is our way of representing their language, not their own writing.
 
 [![PyPI](https://img.shields.io/pypi/v/glyph-cli)](https://pypi.org/project/glyph-cli/)
 [![Python](https://img.shields.io/pypi/pyversions/glyph-cli)](https://pypi.org/project/glyph-cli/)

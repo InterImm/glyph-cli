@@ -19,7 +19,7 @@ from .script import BASE, NUMBER, GlyphError, Vocabulary, Word, to_digits
 ENV_VOCAB = "GLYPH_VOCAB"
 
 DESCRIPTION = """\
-glyph: the dictionary and toolkit for the grid script of Ross 128 b.
+glyph: the dictionary and toolkit for the grid script, our transcription of what Ross 128 b sends.
 
 Words are written KIND.WHICH (BODY.OTHER = "your world"), or KIND alone.
 A number is COUNT and base-512 digits: COUNT.137, COUNT.4.171 = 2219 (COUNT.2219 also works);

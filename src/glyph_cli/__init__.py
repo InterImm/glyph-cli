@@ -1,4 +1,4 @@
-"""glyph: the dictionary and toolkit for the grid script of Ross 128 b."""
+"""glyph: the dictionary and toolkit for the grid script, our transcription of what Ross 128 b sends."""
 
 from .script import Entry, GlyphError, Part, Vocabulary, Word
 
