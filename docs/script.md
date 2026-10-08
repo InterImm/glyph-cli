@@ -107,6 +107,6 @@ A 0 digit is a blank position. Inside a line that is fine, because the next gap 
 1. Split the drawing into lines at the three-row gaps, and count the bands: that is the number of voices.
 2. Split each line into triplets, words and parts from the 1, 2 and 4 cell gaps. Anything that won't split into whole parts is a picture, not text. ONE, BEFORE and AFTER and number digits have empty edges of their own, so when more than one split fits, the machine keeps the one that reads best against the vocabulary.
 3. Read the first band of each triplet as an edge. Same word, same node. A lone `ONE` points at the triplet before.
-4. Apply rule 5 to every part in a lower band, and attach the result to that node or edge with the voice that drew it.
+4. Apply rule 5 to every part in a lower band, and attach the result to that node or edge with the voice that said it.
 
 `glyph decode` does steps 1 and 2; `glyph graph` does 3 and 4.
