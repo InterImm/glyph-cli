@@ -40,7 +40,9 @@ glyph parts                         # the 16 parts
 glyph find wind                     # search meanings
 glyph check BODY.STAR               # is it a word? exit 1 if not
 glyph show BODY.OTHER --symbol ×    # draw words
+glyph number 2219                   # COUNT.4.171: base-512 digits
 glyph render examples/third-voice.txt         # draw a page
+glyph render examples/conversation.txt --per-line 1   # one triplet per line
 glyph render examples/third-voice.txt --svg -o page.svg
 glyph graph examples/conversation.txt         # read it as a knowledge graph (--json, --dot)
 glyph render examples/question.txt | glyph decode -   # and back
@@ -48,7 +50,7 @@ glyph init my-vocab.json && export GLYPH_VOCAB=$PWD/my-vocab.json
 glyph add BODY.STAR "a star-world" --domain Worlds
 ```
 
-A page file has one band per line, `SYMBOL: node | relation | node`; a blank line starts the next statement. See [`examples/`](https://github.com/InterImm/glyph-cli/tree/main/examples) and the [docs](https://interimm.github.io/glyph-cli/pages/).
+A page file has one band per line, `SYMBOL: node | relation | node`; a block of bands is one triplet, and a blank line starts the next. See [`examples/`](https://github.com/InterImm/glyph-cli/tree/main/examples) and the [docs](https://interimm.github.io/glyph-cli/pages/).
 
 ## Develop
 

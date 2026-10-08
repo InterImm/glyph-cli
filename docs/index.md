@@ -2,7 +2,7 @@
 
 **glyph** is the dictionary and toolkit for the *grid script*: the way humans write down what Ross 128 b sends, in InterImm's [*The Contact Era*](https://interstellar.interimm.org/).
 
-It draws words and pages on the lattice, keeps the vocabulary honest, reads a page as a knowledge graph, and reads a drawing back into text.
+It draws words and pages on the grid, keeps the vocabulary honest, reads a page as a knowledge graph, and reads a drawing back into text.
 
 ![A three-voice page: their statement in cyan, our reply in yellow, a third party in violet](assets/examples/third-voice.svg)
 
@@ -34,6 +34,7 @@ uvx --from glyph-cli glyph show BODY.OTHER STAR.TIME COUNT.137
 | `glyph parts` | The 16 parts and what they mean as a thing and as a relation |
 | `glyph list`, `find`, `check` | Look words up |
 | `glyph show` | Draw words |
+| `glyph number` | Write a number in base-512 digits |
 | `glyph render` | Draw a whole page, as text or as SVG pixels |
 | `glyph graph` | Read a page as a knowledge graph (text, JSON or Graphviz) |
 | `glyph decode` | Read a drawing back into page source |

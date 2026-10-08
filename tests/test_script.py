@@ -17,6 +17,9 @@ def test_bundled_vocabulary_is_sound(vocab):
         ("COUNT.137", Word("COUNT", 137)),
         ("COUNT.0", Word("COUNT", None)),
         ("COUNT", Word("COUNT", None)),
+        ("COUNT.4.171", Word("COUNT", (4, 171))),
+        ("COUNT.2219", Word("COUNT", (4, 171))),
+        ("COUNT.512", Word("COUNT", (1, 0))),
         ("_.12", Word(None, 12)),
         ("_.WATER", Word(None, "WATER")),
         ("_", Word()),
@@ -27,13 +30,17 @@ def test_parse(vocab, text, word):
     assert vocab.parse(text) == word
 
 
-@pytest.mark.parametrize("text", ["BODY.WIND", "COUNT.512", "STAR.12", "ONE.12", "COUNT.SELF", "FOO"])
+@pytest.mark.parametrize(
+    "text", ["BODY.WIND", "COUNT.4.512", "COUNT.0.5", "STAR.12", "ONE.12", "COUNT.SELF", "FOO", "BODY.SELF.OTHER"]
+)
 def test_parse_rejects(vocab, text):
     with pytest.raises(GlyphError):
         vocab.parse(text)
 
 
-@pytest.mark.parametrize("text", ["BODY.OTHER", "SELF", "COUNT.137", "COUNT", "_.12", "_.WATER", "_"])
+@pytest.mark.parametrize(
+    "text", ["BODY.OTHER", "SELF", "COUNT.137", "COUNT", "COUNT.4.171", "COUNT.12.106.0", "_.12", "_.WATER", "_"]
+)
 def test_word_str_round_trips(vocab, text):
     assert str(vocab.parse(text)) == text
 
@@ -42,6 +49,7 @@ def test_gloss(vocab):
     assert vocab.gloss(Word("BODY", "OTHER")) == "your world"
     assert vocab.gloss(Word("COUNT", 137)) == "137"
     assert vocab.gloss(Word("COUNT", None)) == "0"
+    assert vocab.gloss(Word("COUNT", (4, 171))) == "2219"
     assert vocab.gloss(Word("OPEN", "COUNT")) == "how many?"
     assert vocab.gloss(Word("LIGHT", "BEFORE"), role="relation") == "see [past]"
     assert vocab.gloss(Word("ONE", None), role="relation") == "is, equals"
@@ -92,7 +100,7 @@ def test_no_number_draws_like_a_word(vocab):
     """The reason for COUNT: no COUNT.n looks like any vocabulary word."""
     from glyph_cli.drawing import band_rows
 
-    words = {tuple(band_rows(vocab, list(e.word.halves), "#")) for e in vocab.entries}
+    words = {tuple(band_rows(vocab, e.word.positions, "#")) for e in vocab.entries}
     assert all(tuple(band_rows(vocab, ["COUNT", n], "#")) not in words for n in range(1, 512))
 
 
@@ -100,6 +108,19 @@ def test_validate_catches_duplicate_shapes(vocab):
     data = vocab.to_json()
     data["parts"]["AFTER"]["shape"] = data["parts"]["BEFORE"]["shape"]
     assert any("same shape" in e for e in Vocabulary.from_json(data).validate())
+
+
+def test_validate_catches_parts_one_cell_apart(vocab):
+    data = vocab.to_json()
+    data["parts"]["BEFORE"]["shape"] = ["...", "#..", "..."]  # ONE moved one cell left
+    assert any("sideways is BEFORE" in e for e in Vocabulary.from_json(data).validate())
+
+
+def test_positions(vocab):
+    assert vocab.parse("SELF").positions == ["SELF"]
+    assert vocab.parse("BODY.OTHER").positions == ["BODY", "OTHER"]
+    assert vocab.parse("COUNT.4.171").positions == ["COUNT", 4, 171]
+    assert vocab.parse("_").positions == [None]
 
 
 def test_load_errors(tmp_path):

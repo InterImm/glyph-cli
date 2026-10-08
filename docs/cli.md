@@ -9,8 +9,10 @@ usage: glyph [-h] [--version] [--vocab PATH] COMMAND ...
 glyph: the dictionary and toolkit for the grid script of Ross 128 b.
 
 Words are written KIND.WHICH (BODY.OTHER = "your world"), or KIND alone.
-A number is COUNT.<n> (0-511); COUNT alone is zero. "_" is an empty position or an empty word.
+A number is COUNT and base-512 digits: COUNT.137, COUNT.4.171 = 2219 (COUNT.2219 also works);
+COUNT alone is zero. "_" is an empty position or an empty word.
 Pages are text files, one band per line: "SYMBOL: node | relation | node".
+A block of bands is one triplet; a blank line starts the next.
 
 positional arguments:
   COMMAND
@@ -19,6 +21,7 @@ positional arguments:
     check       is a word in the vocabulary? (exit 1 if not)
     find        search meanings and notes
     show        draw words
+    number      write a number in base-512 digits and draw it
     add         add a word to an editable vocabulary
     remove      remove a word from an editable vocabulary
     validate    check the vocabulary (exit 1 on problems)
@@ -110,6 +113,22 @@ options:
   --symbol SYMBOL  the party's symbol (default +)
 ```
 
+## `glyph number`
+
+```text
+$ glyph number --help
+usage: glyph number [-h] [--symbol SYMBOL] n
+
+write a number in base-512 digits and draw it
+
+positional arguments:
+  n                a whole number, 0 or more
+
+options:
+  -h, --help       show this help message and exit
+  --symbol SYMBOL  the party's symbol (default +)
+```
+
 ## `glyph add`
 
 ```text
@@ -160,7 +179,7 @@ options:
 
 ```text
 $ glyph render --help
-usage: glyph render [-h] [--svg] [--cell CELL] [--no-grid] [-o OUTPUT] file
+usage: glyph render [-h] [--svg] [--per-line N] [--cell CELL] [--no-grid] [-o OUTPUT] file
 
 draw a page from page source
 
@@ -170,6 +189,7 @@ positional arguments:
 options:
   -h, --help           show this help message and exit
   --svg                draw SVG pixels instead of text
+  --per-line N         triplets per drawn line (default 2)
   --cell CELL          SVG cell size in pixels (default 12)
   --no-grid            SVG: leave empty cells undrawn
   -o, --output OUTPUT  write to a file instead of stdout
