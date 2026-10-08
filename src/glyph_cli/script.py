@@ -1,10 +1,11 @@
 """The script itself: parts, words and the vocabulary that names them.
 
-A *part* is a 3x3 shape with a meaning. A *word* is two lattice positions,
-a **kind** on the left and a **which** on the right, written ``KIND.WHICH``.
-Either half may be empty (``_``). Numbers are ``COUNT.<n>`` (0 to 511): COUNT is the
-only kind whose which is read as nine bits, and it never takes a part as its which,
-so a number can never be drawn like a word. ``COUNT`` alone is zero.
+A *part* is a 3x3 shape with a meaning. A *word* is a **kind** part narrowed by
+a **which** part, written ``KIND.WHICH``, or a kind alone. Either half may be empty
+(``_``). Numbers are ``COUNT`` followed by base-512 digits, most significant first
+(``COUNT.137``, ``COUNT.4.171`` = 2219): COUNT is the only kind whose positions are
+read as nine bits, and it never takes a part, so a number can never be drawn like a
+word. ``COUNT`` alone is zero.
 """
 
 from __future__ import annotations
@@ -15,12 +16,35 @@ from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path
 
-#: A half of a word: a part name, a number (only after ``ONE``) or ``None`` for empty.
+#: One lattice position: a part name, a base-512 digit (only in a number) or ``None`` for empty.
 Half = str | int | None
+#: The which of a word: a part, one digit, several digits (a number above 511) or ``None``.
+Which = str | int | tuple[int, ...] | None
 
-MAX_NUMBER = 511
+BASE = 512
+MAX_DIGIT = BASE - 1
+MAX_NUMBER = MAX_DIGIT  # kept for compatibility: the largest single digit
 EMPTY = "_"
 NUMBER = "COUNT"  # the kind whose which is a number
+
+
+def to_digits(n: int) -> tuple[int, ...]:
+    """``2219`` -> ``(4, 171)``: base-512 digits, most significant first."""
+    if n < 0:
+        raise GlyphError(f"only whole numbers of zero or more: {n}")
+    digits = []
+    while True:
+        n, d = divmod(n, BASE)
+        digits.append(d)
+        if not n:
+            return tuple(reversed(digits))
+
+
+def from_digits(digits: tuple[int, ...]) -> int:
+    n = 0
+    for d in digits:
+        n = n * BASE + d
+    return n
 
 
 class GlyphError(Exception):
@@ -37,10 +61,14 @@ class Part:
 
 @dataclass(frozen=True)
 class Word:
-    """One word: ``kind`` and ``which``. ``Word(None, None)`` is the empty word."""
+    """One word: ``kind`` and ``which``. ``Word(None, None)`` is the empty word.
+
+    A number's which is one digit (``Word("COUNT", 137)``) or a tuple of digits
+    (``Word("COUNT", (4, 171))`` = 2219).
+    """
 
     kind: str | None = None
-    which: Half = None
+    which: Which = None
 
     @property
     def is_empty(self) -> bool:
@@ -48,16 +76,47 @@ class Word:
 
     @property
     def is_number(self) -> bool:
-        return isinstance(self.which, int)
+        return isinstance(self.which, (int, tuple))
 
     @property
-    def halves(self) -> tuple[Half, Half]:
-        return (self.kind, self.which)
+    def digits(self) -> tuple[int, ...]:
+        """A number's digits; ``()`` for any other which."""
+        if isinstance(self.which, tuple):
+            return self.which
+        return (self.which,) if isinstance(self.which, int) else ()
+
+    @property
+    def value(self) -> int | None:
+        """The number a COUNT word stands for (``COUNT`` alone is 0); ``None`` for other words."""
+        if self.kind == NUMBER or (self.kind is None and self.is_number):
+            return from_digits(self.digits) if self.digits else 0
+        return None
+
+    @property
+    def positions(self) -> list[Half]:
+        """The lattice positions the word takes, left to right.
+
+        A one-part word takes one position (3 cells), a pair two, a number one per digit
+        after COUNT. The empty word takes one empty position.
+        """
+        if self.which is None:
+            return [self.kind]
+        return [self.kind, *self.digits] if self.is_number else [self.kind, self.which]
+
+    @property
+    def halves(self) -> tuple[Half, ...]:
+        """Deprecated name for :attr:`positions`, kept for 0.2 code."""
+        return tuple(self.positions)
 
     def __str__(self) -> str:
         if self.is_empty:
             return EMPTY
-        which = "" if self.which is None else f".{self.which}"
+        if self.which is None:
+            which = ""
+        elif self.is_number:
+            which = "." + ".".join(str(d) for d in self.digits)
+        else:
+            which = f".{self.which}"
         return (self.kind or EMPTY) + which
 
 
@@ -73,7 +132,7 @@ class Entry:
     def to_json(self) -> dict:
         return {
             "kind": self.word.kind,
-            "which": self.word.which,
+            "which": list(self.word.which) if isinstance(self.word.which, tuple) else self.word.which,
             "gloss": self.gloss,
             "domain": self.domain,
             "note": self.note,
@@ -97,7 +156,12 @@ class Vocabulary:
                 name: Part(name, tuple(p["shape"]), p["thing"], p.get("relation")) for name, p in data["parts"].items()
             }
             entries = [
-                Entry(Word(e["kind"], e["which"]), e["gloss"], e.get("domain", "Unsorted"), e.get("note", ""))
+                Entry(
+                    Word(e["kind"], _which_from_json(e["which"])),
+                    e["gloss"],
+                    e.get("domain", "Unsorted"),
+                    e.get("note", ""),
+                )
                 for e in data["words"]
             ]
             return cls(parts, dict(data.get("markers", {})), entries, data.get("version", 1), path)
@@ -145,23 +209,34 @@ class Vocabulary:
     # ---- words ----
 
     def parse(self, text: str) -> Word:
-        """``'BODY.OTHER'`` -> ``Word('BODY', 'OTHER')``; ``'COUNT.137'`` -> ``Word('COUNT', 137)``."""
+        """``'BODY.OTHER'`` -> ``Word('BODY', 'OTHER')``; ``'COUNT.137'`` -> ``Word('COUNT', 137)``.
+
+        Numbers are base-512 digits after COUNT: ``'COUNT.4.171'`` -> ``Word('COUNT', (4, 171))``.
+        A single number above 511 is split into digits for you: ``'COUNT.2219'`` is ``COUNT.4.171``.
+        """
         s = text.strip()
         if s in ("", EMPTY):
             return Word()
         k, _, w = s.partition(".")
         kind = None if k in ("", EMPTY) else k.upper()
-        which: Half
+        which: Which
         if w in ("", EMPTY):
             which = None
-        elif w.isdigit():
-            which = int(w)
-            if which > MAX_NUMBER:
-                raise GlyphError(f"number out of range 0-{MAX_NUMBER}: {which}")
+        elif all(d.isdigit() for d in w.split(".")):
+            digits = tuple(int(d) for d in w.split("."))
+            if len(digits) == 1:
+                digits = to_digits(digits[0])
+            elif any(d > MAX_DIGIT for d in digits):
+                raise GlyphError(f"each digit of a number is 0-{MAX_DIGIT} (base {BASE}): {s}")
+            elif digits[0] == 0 and kind == NUMBER:
+                raise GlyphError(f"a number does not start with a 0 digit: {s}")
             if kind not in (NUMBER, None):
-                raise GlyphError(f"a number needs {NUMBER} as its kind, e.g. {NUMBER}.{which} (got {s})")
+                raise GlyphError(f"a number needs {NUMBER} as its kind, e.g. {NUMBER}.{w} (got {s})")
+            which = digits[0] if len(digits) == 1 else digits
             if kind == NUMBER and which == 0:
                 which = None  # COUNT alone is zero: COUNT.0 draws exactly like it
+        elif "." in w:
+            raise GlyphError(f"only numbers take more than two positions: {s}")
         else:
             which = w.upper()
             if kind == NUMBER:
@@ -183,6 +258,8 @@ class Vocabulary:
             return EMPTY
         if isinstance(half, int):
             return str(half)
+        if isinstance(half, tuple):
+            return ".".join(str(d) for d in half)
         return self.parts[half].thing
 
     def gloss(self, word: Word, role: str = "node") -> str:
@@ -196,10 +273,11 @@ class Vocabulary:
                 base = part.relation or part.thing
             if word.which is None:
                 return base
-            marker = self.markers.get(str(word.which), str(word.which))
+            plain = self.thing(word.which) if word.is_number else str(word.which)
+            marker = self.markers.get(str(word.which)) or plain
             return f"{base} [{marker}]"
-        if word.kind == NUMBER and (word.is_number or word.which is None):
-            return str(word.which or 0)
+        if word.kind == NUMBER:
+            return str(word.value)
         entry = self.lookup(word)
         if entry:
             return entry.gloss
@@ -270,3 +348,7 @@ class Vocabulary:
             if e.domain not in out:
                 out.append(e.domain)
         return out
+
+
+def _which_from_json(which: object) -> Which:
+    return tuple(which) if isinstance(which, list) else which  # type: ignore[return-value]

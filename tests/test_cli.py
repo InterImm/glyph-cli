@@ -57,7 +57,7 @@ def test_find_and_show(capsys):
 def test_render_graph_decode(capsys, tmp_path):
     src = str(EXAMPLES / "third-voice.txt")
     code, drawing, _ = run(capsys, "render", src)
-    assert code == 0 and len(drawing.splitlines()) == 11
+    assert code == 0 and len(drawing.splitlines()) == 11 and len(drawing.splitlines()[0]) == 21
     drawn = tmp_path / "drawing.txt"
     drawn.write_text(drawing, encoding="utf-8")
     code, out, _ = run(capsys, "decode", str(drawn))
@@ -69,6 +69,21 @@ def test_render_graph_decode(capsys, tmp_path):
     svg = tmp_path / "page.svg"
     code, _, err = run(capsys, "render", src, "--svg", "-o", str(svg))
     assert code == 0 and svg.read_text().startswith("<svg")
+
+
+def test_number(capsys):
+    code, out, _ = run(capsys, "number", "2219")
+    assert code == 0 and out.startswith("2219 = COUNT.4.171  (4×512^1 + 171×512^0)")
+    assert run(capsys, "number", "137")[1].splitlines()[1:] == [".....+.", "......+", "+++...+"]
+    assert run(capsys, "number", "--", "-1")[0] == 2
+
+
+def test_render_per_line_and_zero_warning(capsys, tmp_path):
+    src = tmp_path / "p.txt"
+    src.write_text("+: SELF | LIGHT | ONE\n\n+: SELF | VOICE | COUNT.1.0\n")
+    code, out, err = run(capsys, "render", str(src), "--per-line", "1")
+    assert code == 0 and len(out.splitlines()) == 3 + 3 + 3
+    assert "triplet 2" in err and "triplet 1" not in err
 
 
 def test_errors_exit_2(capsys, tmp_path):

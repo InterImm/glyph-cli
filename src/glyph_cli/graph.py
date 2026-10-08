@@ -1,12 +1,12 @@
 """Reading a page as a knowledge graph (grammar rules 3 and 5).
 
-Rule 3: the first band of every line is one edge, node | relation | node. The
-same word on two lines is the same node, and a lone ONE in a node slot means
-"that", the statement on the line above.
+Rule 3: every triplet is one edge, node | relation | node, read from its first
+band. The same word in two triplets is the same node, and a lone ONE in a node
+slot means "that", the triplet before.
 
 Rule 5: every part in a lower band answers the nearest drawn part above it in
-the same position: the same part is *yes*, NOT is *no*, a different part is
-*instead*, a part under an empty position is *and also*.
+the same position of the same slot: the same part is *yes*, NOT is *no*, a
+different part is *instead*, a part under an empty position is *and also*.
 """
 
 from __future__ import annotations
@@ -16,7 +16,6 @@ from dataclasses import asdict, dataclass, field
 from .page import SLOTS, Page
 from .script import Half, Vocabulary, Word
 
-HALVES = ("kind", "which")
 THAT = Word("ONE", None)
 
 
@@ -28,14 +27,14 @@ class Node:
 
     def label(self) -> str:
         if self.statement is not None:
-            return f"[statement {self.statement}]" if self.statement else "[that: nothing above]"
+            return f"[triplet {self.statement}]" if self.statement else "[that: nothing before]"
         return self.gloss
 
 
 @dataclass
 class Response:
     slot: str
-    half: str
+    half: str  # kind, which, or "digit n" in a number
     meaning: str  # yes | no | instead | and also
     part: str
     to: str | None  # symbol of the voice answered, None when answering an empty position
@@ -84,9 +83,15 @@ def respond(above: Half, below: Half) -> str | None:
     return "instead"
 
 
+def position_name(word: Word, index: int) -> str:
+    if index == 0:
+        return "kind"
+    return f"digit {index}" if word.is_number and len(word.digits) > 1 else "which"
+
+
 def read_graph(vocab: Vocabulary, page: Page) -> Graph:
     g = Graph()
-    for i, line in enumerate(page.lines, 1):
+    for i, line in enumerate(page.triplets, 1):
         st = line.statement
         subject_w, relation_w, object_w = st.words
 
@@ -102,15 +107,18 @@ def read_graph(vocab: Vocabulary, page: Page) -> Graph:
         edge = Edge(i, st.symbol, node(subject_w), relation, str(relation_w), node(object_w))
         for b, band in enumerate(line.bands[1:], 1):
             reply = Reply(band.symbol)
-            for pos, below in enumerate(band.halves):
-                above, by = None, None
-                for prev in reversed(line.bands[:b]):
-                    if prev.halves[pos] is not None:
-                        above, by = prev.halves[pos], prev.symbol
-                        break
-                meaning = respond(above, below)
-                if meaning:
-                    reply.responses.append(Response(SLOTS[pos // 2], HALVES[pos % 2], meaning, vocab.thing(below), by))
+            for slot, word in enumerate(band.words):
+                for pos, below in enumerate(word.positions):
+                    above, by = None, None
+                    for prev in reversed(line.bands[:b]):
+                        prev_positions = prev.words[slot].positions
+                        if pos < len(prev_positions) and prev_positions[pos] is not None:
+                            above, by = prev_positions[pos], prev.symbol
+                            break
+                    meaning = respond(above, below)
+                    if meaning:
+                        name = position_name(word, pos)
+                        reply.responses.append(Response(SLOTS[slot], name, meaning, vocab.thing(below), by))
             edge.replies.append(reply)
         g.edges.append(edge)
     return g
@@ -132,7 +140,7 @@ def to_dot(g: Graph) -> str:
     """Graphviz DOT, for anyone who wants to draw the graph."""
 
     def nid(n: Node) -> str:
-        return f'"statement {n.statement}"' if n.statement is not None else f'"{n.word or "_"}"'
+        return f'"triplet {n.statement}"' if n.statement is not None else f'"{n.word or "_"}"'
 
     def q(s: str) -> str:
         return s.replace("\\", "\\\\").replace('"', '\\"')

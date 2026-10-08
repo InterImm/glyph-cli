@@ -64,7 +64,7 @@ Each part means a thing when it is a node (`BODY` is *world, matter*) and an act
 
 ## Look words up
 
-A word is two parts side by side: a **kind** narrowed by a **which**, written `KIND.WHICH`.
+A word is two parts side by side, one empty cell apart: a **kind** narrowed by a **which**, written `KIND.WHICH`. A single part is a word too.
 
 ```sh
 glyph find world          # search meanings
@@ -73,11 +73,15 @@ glyph check BODY.STAR     # no, and its literal reading
 glyph show BODY.OTHER BODY.SELF --symbol ×
 ```
 
-Numbers are built in: `COUNT.137` is 137, its which drawn as nine bits. `COUNT` alone is zero.
+Numbers are built in: `COUNT.137` is 137, its digit drawn as nine bits. Bigger numbers take more digits in base 512, most significant first: `COUNT.4.171` is 4 × 512 + 171 = 2219. `COUNT` alone is zero.
+
+```sh
+glyph number 2219         # 2219 = COUNT.4.171, and its drawing
+```
 
 ## Write a page
 
-A page is a text file. Each line of the file is one band: the party's symbol, then three slots, `node | relation | node`. Save this as `hello.txt`:
+A page is a text file. Each line of the file is one band: the party's symbol, then a triplet, `node | relation | node`. Save this as `hello.txt`:
 
 ```text
 +: SELF | LIGHT.BEFORE | BODY.OTHER
@@ -90,9 +94,9 @@ glyph render hello.txt
 ```
 
 ```text
-+++.....+.+.....+++.+++
-+.+......+..+...+++.+..
-+++.....+.+.....+++.+++
++++..+.+......+++.+++
++.+...+..+....+++.+..
++++..+.+......+++.+++
 ```
 
 And read it:
@@ -106,7 +110,7 @@ Edges:
 1. (+) we --see [past]--> your world
 ```
 
-"We saw your world."
+"We saw your world." The gaps carry the structure: 1 empty cell inside a word, 2 between the words of a triplet, and 4 between triplets. A blank line in the file starts the next triplet, and `glyph render` puts two triplets on each drawn line (change it with `--per-line`).
 
 ## Reply
 
@@ -134,6 +138,8 @@ The translating machine works the other way too: give it a drawing and it gives 
 ```sh
 glyph render conversation.txt | glyph decode -
 ```
+
+It finds the words from the gaps alone.
 
 ## Grow the vocabulary
 

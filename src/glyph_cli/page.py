@@ -1,9 +1,10 @@
 """Page source: the plain-text form of a page.
 
-One band per line, ``SYMBOL: node | relation | node``. The first band of a
-block is the statement (one edge of the graph); the bands under it are other
-voices replying, part by part. A blank line starts the next statement. ``#``
-starts a comment.
+One band per line, ``SYMBOL: node | relation | node``. A block of bands is one
+triplet: the first band is the statement (one edge of the graph), the bands
+under it are other voices replying, part by part. A blank line starts the next
+triplet. ``#`` starts a comment. How many triplets go on one drawn line is a
+choice made when drawing, not part of the source.
 
     +: BODY.OTHER | ONE | BODY.AIR     # their statement: your world is an air-world
     ×: _ | _ | _.WATER                 # our reply: water instead of air
@@ -29,14 +30,14 @@ class Band:
     words: tuple[Word, Word, Word]
 
     @property
-    def halves(self) -> list:
-        """The six lattice positions, left to right."""
-        return [h for w in self.words for h in w.halves]
+    def positions(self) -> list[list]:
+        """The lattice positions of each slot, left to right."""
+        return [w.positions for w in self.words]
 
 
 @dataclass
-class Line:
-    """One line of a page: a statement band and the voices that answer it."""
+class Triplet:
+    """One triplet (node, relation, node): a statement band and the voices that answer it."""
 
     bands: list[Band] = field(default_factory=list)
 
@@ -48,20 +49,24 @@ class Line:
     def replies(self) -> list[Band]:
         return self.bands[1:]
 
+    def widths(self) -> list[int]:
+        """Positions per slot: as many as the longest word any band puts there."""
+        return [max(len(b.words[i].positions) for b in self.bands) for i in range(3)]
+
 
 @dataclass
 class Page:
-    lines: list[Line] = field(default_factory=list)
+    triplets: list[Triplet] = field(default_factory=list)
 
     @property
     def voices(self) -> int:
-        """The most bands any line has: every line is drawn this tall."""
-        return max((len(line.bands) for line in self.lines), default=0)
+        """The most bands any triplet has: every line is drawn this tall."""
+        return max((len(t.bands) for t in self.triplets), default=0)
 
     def symbols(self) -> list[str]:
         out: list[str] = []
-        for line in self.lines:
-            for band in line.bands:
+        for t in self.triplets:
+            for band in t.bands:
                 if band.symbol not in out:
                     out.append(band.symbol)
         return out
@@ -76,13 +81,13 @@ def check_symbol(symbol: str) -> str:
 
 def parse_page(text: str, vocab: Vocabulary) -> Page:
     """Read page source into a :class:`Page`."""
-    page, current = Page(), Line()
+    page, current = Page(), Triplet()
     for number, raw in enumerate(text.splitlines(), 1):
         line = raw.split("#", 1)[0].rstrip()
         if not line.strip():
             if current.bands:
-                page.lines.append(current)
-                current = Line()
+                page.triplets.append(current)
+                current = Triplet()
             continue
         symbol, sep, rest = line.partition(":")
         where = f"line {number}"
@@ -101,13 +106,13 @@ def parse_page(text: str, vocab: Vocabulary) -> Page:
             raise GlyphError(f"{where}: {exc}") from None
         current.bands.append(Band(symbol.strip(), words))  # type: ignore[arg-type]
     if current.bands:
-        page.lines.append(current)
+        page.triplets.append(current)
     return page
 
 
 def format_page(page: Page) -> str:
     """Write a :class:`Page` back as page source."""
     blocks = []
-    for line in page.lines:
-        blocks.append("\n".join(f"{b.symbol}: " + " | ".join(str(w) for w in b.words) for b in line.bands))
+    for t in page.triplets:
+        blocks.append("\n".join(f"{b.symbol}: " + " | ".join(str(w) for w in b.words) for b in t.bands))
     return "\n\n".join(blocks) + ("\n" if blocks else "")

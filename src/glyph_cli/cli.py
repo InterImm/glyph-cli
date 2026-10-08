@@ -10,11 +10,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 from . import __version__
-from .drawing import decode, draw_words, render, render_svg
+from .drawing import PER_LINE, decode, draw_words, hidden_zeros, render, render_svg
 from .export import vocabulary_markdown
 from .graph import format_graph, read_graph, to_dot
 from .page import check_symbol, format_page, parse_page
-from .script import NUMBER, GlyphError, Vocabulary
+from .script import BASE, NUMBER, GlyphError, Vocabulary, Word, to_digits
 
 ENV_VOCAB = "GLYPH_VOCAB"
 
@@ -22,8 +22,10 @@ DESCRIPTION = """\
 glyph: the dictionary and toolkit for the grid script of Ross 128 b.
 
 Words are written KIND.WHICH (BODY.OTHER = "your world"), or KIND alone.
-A number is COUNT.<n> (0-511); COUNT alone is zero. "_" is an empty position or an empty word.
+A number is COUNT and base-512 digits: COUNT.137, COUNT.4.171 = 2219 (COUNT.2219 also works);
+COUNT alone is zero. "_" is an empty position or an empty word.
 Pages are text files, one band per line: "SYMBOL: node | relation | node".
+A block of bands is one triplet; a blank line starts the next.
 """
 
 EPILOG = f"""\
@@ -99,7 +101,7 @@ def cmd_check(v: Vocabulary, a: argparse.Namespace) -> int:
         print(f'yes: {word} = "{e.gloss}" ({e.domain})')
         return 0
     if word.kind == NUMBER:
-        print(f"yes: {word} = the number {word.which or 0} (numbers are built in)")
+        print(f"yes: {word} = the number {word.value} (numbers are built in)")
         return 0
     print(f"no: {word} is not in the vocabulary. Literal reading: {v.gloss(word)}")
     same_kind = [x for x in v.entries if x.word.kind == word.kind]
@@ -128,6 +130,15 @@ def cmd_show(v: Vocabulary, a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_number(v: Vocabulary, a: argparse.Namespace) -> int:
+    digits = to_digits(a.n)
+    word = Word(NUMBER, None if a.n == 0 else digits[0] if len(digits) == 1 else digits)
+    sums = " + ".join(f"{d}×{BASE}^{len(digits) - 1 - i}" for i, d in enumerate(digits))
+    print(f"{a.n} = {word}" + (f"  ({sums})" if len(digits) > 1 else ""))
+    print("\n".join(draw_words(v, [word], check_symbol(a.symbol))))
+    return 0
+
+
 def cmd_add(v: Vocabulary, a: argparse.Namespace) -> int:
     e = v.add(v.parse(a.word), a.gloss, a.domain, a.note, a.force)
     path = v.save()
@@ -152,10 +163,16 @@ def cmd_validate(v: Vocabulary, a: argparse.Namespace) -> int:
 
 def cmd_render(v: Vocabulary, a: argparse.Namespace) -> int:
     page = parse_page(read_input(a.file), v)
+    for i in hidden_zeros(page, a.per_line):
+        print(
+            f"glyph: warning: triplet {i} ends its line with a number ending in a 0 digit, which is drawn blank; "
+            "a reader can't see where it ends. Move it to the subject slot or put a triplet after it.",
+            file=sys.stderr,
+        )
     if a.svg:
-        write_output(render_svg(v, page, cell=a.cell, grid=not a.no_grid), a.output)
+        write_output(render_svg(v, page, cell=a.cell, grid=not a.no_grid, per_line=a.per_line), a.output)
     else:
-        write_output("\n".join(render(v, page)) + "\n", a.output)
+        write_output("\n".join(render(v, page, a.per_line)) + "\n", a.output)
     return 0
 
 
@@ -218,6 +235,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("show", cmd_show, "draw words")
     p.add_argument("words", nargs="+", metavar="WORD")
     p.add_argument("--symbol", default="+", help="the party's symbol (default +)")
+    p = add("number", cmd_number, "write a number in base-512 digits and draw it")
+    p.add_argument("n", type=int, help="a whole number, 0 or more")
+    p.add_argument("--symbol", default="+", help="the party's symbol (default +)")
     p = add("add", cmd_add, "add a word to an editable vocabulary")
     p.add_argument("word")
     p.add_argument("gloss", help="its meaning")
@@ -230,6 +250,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("render", cmd_render, "draw a page from page source")
     p.add_argument("file", help="page source file, or - for stdin")
     p.add_argument("--svg", action="store_true", help="draw SVG pixels instead of text")
+    p.add_argument(
+        "--per-line", type=int, default=PER_LINE, metavar="N", help=f"triplets per drawn line (default {PER_LINE})"
+    )
     p.add_argument("--cell", type=int, default=12, help="SVG cell size in pixels (default 12)")
     p.add_argument("--no-grid", action="store_true", help="SVG: leave empty cells undrawn")
     p.add_argument("-o", "--output", help="write to a file instead of stdout")
