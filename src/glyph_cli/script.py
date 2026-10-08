@@ -273,7 +273,8 @@ class Vocabulary:
                 base = part.relation or part.thing
             if word.which is None:
                 return base
-            marker = self.markers.get(str(word.which), str(word.which))
+            plain = self.thing(word.which) if word.is_number else str(word.which)
+            marker = self.markers.get(str(word.which)) or plain
             return f"{base} [{marker}]"
         if word.kind == NUMBER:
             return str(word.value)
