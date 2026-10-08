@@ -1,6 +1,6 @@
 [project]
 site_name = "glyph"
-site_description = "The dictionary and toolkit for the grid script of Ross 128 b."
+site_description = "The dictionary and toolkit for the grid script, our transcription of what Ross 128 b sends."
 site_url = "https://interimm.github.io/glyph-cli/"
 site_author = "InterImm"
 copyright = "Copyright &copy; 2026 InterImm · MIT License"

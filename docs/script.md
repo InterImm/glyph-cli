@@ -1,6 +1,6 @@
 # The script
 
-This is the grammar `glyph` implements: version 8 of the grid script, where **a text is a knowledge graph** and **spacing is structure**. In the story it is our transcription of their data, not a script anyone has seen them use.
+This is the grammar `glyph` implements: version 8 of the grid script, where **a text is a knowledge graph** and **spacing is structure**. In the story it is our way of representing their language, not their language itself: they speak by resonance, in air, and the grid is how the translating machine writes that speech down. Nobody has seen them use any script.
 
 ## The five rules
 

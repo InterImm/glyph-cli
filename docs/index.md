@@ -45,4 +45,4 @@ Every command is in the [command reference](cli.md). The rules it follows are in
 
 ## In the story
 
-The grid script is a human transcription, run by the translating machine. It is not a script anyone has seen them use, and nobody knows what they look like. `glyph` is that machine's lexicon, made real: a growing list of signs, each with a meaning, that every new transmission is read against.
+The grid script is our way of representing their language, not their language itself. As far as anyone can tell, they speak by resonance, in air: one voice alone makes only a few tones, and voices together make richer ones. The grid is how the translating machine writes that speech down, one band per voice. Nobody has seen them use any script, and nobody knows what they look like. `glyph` is that machine's lexicon, made real: a growing list of signs, each with a meaning, that every new transmission is read against.

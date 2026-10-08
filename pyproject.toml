@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "glyph-cli"
 dynamic = ["version"]
-description = "The dictionary and toolkit for the grid script of Ross 128 b (InterImm, The Contact Era)."
+description = "The dictionary and toolkit for the grid script, our transcription of what Ross 128 b sends (InterImm, The Contact Era)."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
