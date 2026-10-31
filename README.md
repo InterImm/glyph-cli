@@ -73,6 +73,13 @@ Pushes to `main` publish the docs to GitHub Pages.
 
 The release workflow checks the tag matches the version, builds the package, tests the built wheel and uploads it to [PyPI](https://pypi.org/project/glyph-cli/) with Trusted Publishing, so no token is stored.
 
+## Related
+
+- [Grid script on the web](https://interstellar.interimm.org/script/): dictionary and converter in the browser, the same output as `glyph`
+- [The Contact Era](https://interstellar.interimm.org/): the story this script belongs to
+- [Light-Year Canon](https://iron-bamboo.interimm.org/#life): the game where each reply is built from proposed words
+- [The Book of InterImm](https://book.interimm.org/): phase one of the story
+
 ## License
 
 MIT

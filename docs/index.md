@@ -46,3 +46,10 @@ Every command is in the [command reference](cli.md). The rules it follows are in
 ## In the story
 
 The grid script is our way of representing their language, not their language itself. As far as anyone can tell, they speak by resonance, in air: one voice alone makes only a few tones, and voices together make richer ones. The grid is how the translating machine writes that speech down, one band per voice. Nobody has seen them use any script, and nobody knows what they look like. `glyph` is that machine's lexicon, made real: a growing list of signs, each with a meaning, that every new transmission is read against. The first signal was only a handshake, so the lexicon starts as a first draft and grows over the back-and-forth of the exchange, one round trip of 22 years at a time.
+
+## Elsewhere in the story
+
+- [Grid script on the web](https://interstellar.interimm.org/script/): the dictionary and a converter that runs in the browser, giving the same output as `glyph`.
+- [The signal archive](https://interstellar.interimm.org/archive/2219-signal/) and [the five transmissions](https://interstellar.interimm.org/signals/): what Ross 128 b sent, starting with the duet.
+- [Light-Year Canon](https://iron-bamboo.interimm.org/#life): a game played one generation at a time, where each reply is built from the words people propose.
+- [The Book of InterImm](https://book.interimm.org/): phase one of the story.
